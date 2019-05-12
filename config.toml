@@ -1,0 +1,25 @@
+[languages]
+    [languages.php]
+    extension=".php"
+    cmd=["php","main.php"]
+    [languages.php.images]
+    "7.3"="php:7.3-alpine"
+    "7.2"="php:7.2-alpine"
+    "7.1"="php:7.1-alpine"
+    "7.0"="php:7.0-alpine"
+    "5.6"="php:5.6-alpine"
+    "default"="latest"
+    [languages.golang]
+    extension=".go"
+    cmd=["go","build","main.go"]
+    [languages.golang.images]
+    "1.12"="golang:1.12-alpine"
+    "1.11"="golang:1.11-alpine"
+    "default"="latest"
+
+
+[container]
+maxExcuteTime=20
+temFilePath=""
+
+
