@@ -19,3 +19,7 @@ func TestGenerateRandomFileName(t *testing.T) {
 
 	t.Log(fileName)
 }
+
+func TestCleanExpiredTempFiles(t *testing.T) {
+	CleanExpiredTempFiles("/Users/rudy/go/src/github.com/RudyChow/code-runner/tmp", 2)
+}

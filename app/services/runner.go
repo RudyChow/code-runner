@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+
+	"github.com/RudyChow/code-runner/app/channels"
 	"github.com/RudyChow/code-runner/app/models"
 )
 
@@ -29,7 +31,10 @@ func GetResultFromDocker(l *models.Language) (string, error) {
 	}
 
 	//删除容器
-	models.DockerRunner.RemoveContainer(id)
+	channels.RemoveContainerChan <- id
+	// models.DockerRunner.RemoveContainer(id)
+	//删除文件
+	channels.RemoveFileChan <- l.SourceFilePath
 
 	return res, nil
 }

@@ -1,9 +1,10 @@
 package schedules
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/RudyChow/code-runner/app/models"
+	"github.com/RudyChow/code-runner/app/utils"
 	"github.com/RudyChow/code-runner/conf"
 )
 
@@ -13,9 +14,9 @@ func RunTikers() {
 	for {
 		select {
 		case <-cleaner.C:
-			// todo
-			//清理没用的东西
-			fmt.Println("start cleaning")
+			//gc
+			go models.DockerRunner.CleanExpiredContainers(conf.Cfg.Container.MaxExcuteTime)
+			go utils.CleanExpiredTempFiles(conf.Cfg.Container.TemFilePath, conf.Cfg.Container.MaxExcuteTime)
 		}
 	}
 }

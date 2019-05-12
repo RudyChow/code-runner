@@ -22,8 +22,9 @@ type info struct {
 }
 
 type container struct {
-	MaxExcuteTime int64
-	TemFilePath   string
+	MaxExcuteTime       int64
+	TemFilePath         string
+	ContainerNamePrefix string
 }
 
 func init() {
@@ -39,5 +40,6 @@ func init() {
 		}
 		Cfg.Container.TemFilePath = path.Join(currPath, "tmp")
 	}
+	log.Println(Cfg.Container.TemFilePath)
 
 }

@@ -37,11 +37,18 @@ func TestLanguagesFlow(t *testing.T) {
 
 func TestGetContainers(t *testing.T) {
 	runner := DockerRunner
-	containers, err := runner.GetContainers()
+	_, err := runner.GetContainers()
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(containers)
+}
+
+func TestCleanExpiredContainers(t *testing.T) {
+	runner := DockerRunner
+	err := runner.CleanExpiredContainers(0)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func flow(containerOption *ContainerOption) (string, error) {

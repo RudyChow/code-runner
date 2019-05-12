@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"io/ioutil"
+	"log"
+	"strings"
+	"sync"
 	"time"
 
-	"github.com/RudyChow/code-runner/conf"
-
+	"github.com/RudyChow/code-runner/app/channels"
 	"github.com/RudyChow/code-runner/app/utils"
+	"github.com/RudyChow/code-runner/conf"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -59,7 +62,7 @@ func (this *Runner) CreateContainer(containerOption *ContainerOption) (string, e
 				Target: containerOption.TargetFilePath,
 			},
 		},
-	}, nil, "code-runner-"+utils.GenerateRandomFileName("", ""))
+	}, nil, conf.Cfg.Container.ContainerNamePrefix+"-"+utils.GenerateRandomFileName("", ""))
 	if err != nil {
 		return "", err
 	}
@@ -88,14 +91,15 @@ func (this *Runner) WaitContainer(containerId string) error {
 	case <-statusCh:
 	case <-ticker.C:
 		ticker.Stop()
-		this.RemoveContainer(containerId)
+		channels.RemoveContainerChan <- containerId
+		// this.RemoveContainer(containerId)
 		return errors.New("container time out")
 	}
 	return nil
 }
 
 //获取容器记录
-func (this *Runner) LogContainer(containerId string) (string, error) {
+func (this *Runner) LogContainer(containerId string) (result string, err error) {
 	out, err := this.dockerClient.ContainerLogs(this.ctx, containerId, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		return "", err
@@ -105,7 +109,11 @@ func (this *Runner) LogContainer(containerId string) (string, error) {
 		return "", err
 	}
 
-	return string(data), nil
+	result = string(data)
+
+	log.Println("container:", containerId, ",result:", result)
+
+	return
 }
 
 //删除容器
@@ -124,6 +132,50 @@ func (this *Runner) GetContainers() ([]types.Container, error) {
 		Limit: -1,
 	})
 	return list, err
+}
+
+//删除过期容器
+func (this *Runner) CleanExpiredContainers(gap int64) error {
+	list, err := this.GetContainers()
+	if err != nil {
+		return err
+	}
+
+	if len(list) > 0 {
+		wg := &sync.WaitGroup{}
+		for _, container := range list {
+			wg.Add(1)
+
+			go func(names []string, id string, created int64) {
+				defer wg.Done()
+				//如果没过期，则不删除
+				if created+gap > time.Now().Unix() {
+					return
+				}
+
+				isRunner := false
+				for _, name := range names {
+					if strings.Contains(name, conf.Cfg.Container.ContainerNamePrefix) {
+						isRunner = true
+						break
+					}
+				}
+				//如果是，则删除
+				if isRunner {
+					err = this.RemoveContainer(id)
+					if err != nil {
+						log.Println("cannot delete container", id, "reason:", err)
+					} else {
+						log.Println("success deleting container", id)
+					}
+				}
+			}(container.Names, container.ID, container.Created)
+
+		}
+		wg.Wait()
+	}
+
+	return err
 }
 
 //执行

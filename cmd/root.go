@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/RudyChow/code-runner/app/http"
 	"github.com/RudyChow/code-runner/app/schedules"
 	"github.com/spf13/cobra"
 )
@@ -30,7 +31,8 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		go schedules.RunTikers()
 
-		// go http.StartHttpServer()
+		go http.StartHttpServer()
+		go schedules.RunChan()
 
 		select {}
 	},
