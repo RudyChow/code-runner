@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"errors"
+	"io"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -132,6 +133,20 @@ func (this *Runner) GetContainers() ([]types.Container, error) {
 		Limit: -1,
 	})
 	return list, err
+}
+
+//获取镜像列表
+func (this *Runner) GetImages() ([]types.ImageSummary, error) {
+	list, err := this.dockerClient.ImageList(this.ctx, types.ImageListOptions{
+		All: true,
+	})
+	return list, err
+}
+
+//拉取镜像
+func (this *Runner) PullImage(image string) (io.ReadCloser, error) {
+	ioReader, err := this.dockerClient.ImagePull(this.ctx, image, types.ImagePullOptions{})
+	return ioReader, err
 }
 
 //删除过期容器

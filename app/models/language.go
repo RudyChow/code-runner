@@ -64,3 +64,19 @@ func (this *Language) OutputFile() error {
 func (this *Language) generateTargetFilePath() string {
 	return "/tmp/main" + this.GetExtension()
 }
+
+//获取配置中的所有镜像
+func GetAllSupportedImages() map[string][]string {
+
+	result := make(map[string][]string)
+
+	for language, info := range conf.Cfg.Languages {
+		var images []string
+		for _, image := range info.Images {
+			images = append(images, image)
+		}
+		result[language] = images
+	}
+
+	return result
+}

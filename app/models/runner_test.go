@@ -1,6 +1,8 @@
 package models
 
 import (
+	"io"
+	"os"
 	"testing"
 )
 
@@ -49,6 +51,37 @@ func TestCleanExpiredContainers(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestGetImages(t *testing.T) {
+	list, err := DockerRunner.GetImages()
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, image := range list {
+		t.Log(image.RepoTags)
+	}
+
+	// t.Log(list)
+}
+
+func TestPullImages(t *testing.T) {
+	ioReader, err := DockerRunner.PullImage("php:5.6-alpine")
+	if err != nil {
+		t.Error(err)
+	}
+	io.Copy(os.Stdout, ioReader)
+}
+
+func TestGetAllUnsupportedImages(t *testing.T) {
+	list := GetAllSupportedImages()
+
+	for _, image := range list {
+		t.Log(image)
+	}
+
+	// t.Log(list)
 }
 
 func flow(containerOption *ContainerOption) (string, error) {
