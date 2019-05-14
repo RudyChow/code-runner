@@ -21,9 +21,24 @@
 
 
 [container]
-maxExcuteTime=20
+#容器最大执行时间 单位s
+MaxExcuteTime=20
 #abs path
-temFilePath="/tmp/code-runner"
-containerNamePrefix="code-runner"
-
+TemFilePath="/tmp/code-runner"
+#容器前缀
+ContainerNamePrefix="code-runner"
+    #容器限制
+    [container.limit]
+    #内存 单位m
+    Memory=50
+    #进程数
+    PidsLimit=50
+    #磁盘 m
+    DiskQuota=10
+    #cpu权重 相对其它容器
+    CPUShares=1024
+    #cpu 单位ms
+    CPUPeriod=100
+    #cpu 单位ms
+    CPUQuota=200
 

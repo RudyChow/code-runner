@@ -40,7 +40,7 @@ to quickly create a Cobra application.`,
 			os.Exit(-1)
 		}
 
-		formartPrintImages(result)
+		formatPrintImages(result)
 
 		var fix string
 		cmd.Println("\nwant to download the nonexistent images?(y/n)")
@@ -101,7 +101,7 @@ func getImages() ([]*output, error) {
 }
 
 //格式化输出
-func formartPrintImages(images []*output) {
+func formatPrintImages(images []*output) {
 	fmt.Println("image\t", "exist")
 	for _, output := range images {
 		fmt.Println(output.Image+"\t", output.IsExist)

@@ -25,11 +25,21 @@ type container struct {
 	MaxExcuteTime       int64
 	TemFilePath         string
 	ContainerNamePrefix string
+	Limit               *containerLimit
+}
+
+type containerLimit struct {
+	Memory    int64
+	PidsLimit int64
+	DiskQuota int64
+	CPUShares int64
+	CPUPeriod int64
+	CPUQuota  int64
 }
 
 func init() {
 	//读取配置文件
-	if _, err := toml.DecodeFile("./config.toml", &Cfg); err != nil {
+	if _, err := toml.DecodeFile("/Users/rudy/go/src/github.com/RudyChow/code-runner/config.toml", &Cfg); err != nil {
 		log.Panic(err)
 	}
 	//设置目录
@@ -40,6 +50,4 @@ func init() {
 		}
 		Cfg.Container.TemFilePath = path.Join(currPath, "tmp")
 	}
-	log.Println(Cfg.Container.TemFilePath)
-
 }

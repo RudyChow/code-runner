@@ -63,6 +63,14 @@ func (this *Runner) CreateContainer(containerOption *ContainerOption) (string, e
 				Target: containerOption.TargetFilePath,
 			},
 		},
+		Resources: container.Resources{
+			Memory:    conf.Cfg.Container.Limit.Memory * 1024 * 1024,
+			PidsLimit: conf.Cfg.Container.Limit.PidsLimit,
+			DiskQuota: conf.Cfg.Container.Limit.DiskQuota * 1024 * 1024,
+			CPUShares: conf.Cfg.Container.Limit.CPUShares,
+			CPUPeriod: conf.Cfg.Container.Limit.CPUPeriod * 1000,
+			CPUQuota:  conf.Cfg.Container.Limit.CPUQuota * 1000,
+		},
 	}, nil, conf.Cfg.Container.ContainerNamePrefix+"-"+utils.GenerateRandomFileName("", ""))
 	if err != nil {
 		return "", err
@@ -83,18 +91,16 @@ func (this *Runner) StartContainer(containerId string) error {
 func (this *Runner) WaitContainer(containerId string) error {
 	statusCh, errCh := this.dockerClient.ContainerWait(this.ctx, containerId, container.WaitConditionNotRunning)
 
-	ticker := time.NewTicker(time.Second * time.Duration(conf.Cfg.Container.MaxExcuteTime))
 	select {
 	case err := <-errCh:
 		if err != nil {
 			return err
 		}
 	case <-statusCh:
-	case <-ticker.C:
-		ticker.Stop()
+	case <-time.After(time.Second * time.Duration(conf.Cfg.Container.MaxExcuteTime)):
 		channels.RemoveContainerChan <- containerId
 		// this.RemoveContainer(containerId)
-		return errors.New("container time out")
+		return errors.New("task time out")
 	}
 	return nil
 }
