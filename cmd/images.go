@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -26,13 +27,7 @@ import (
 // imagesCmd represents the images command
 var imagesCmd = &cobra.Command{
 	Use:   "images",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "显示你当前支持的镜像状态以及自动下载缺失的镜像",
 	Run: func(cmd *cobra.Command, args []string) {
 		result, err := getImages()
 		if err != nil {
@@ -43,20 +38,19 @@ to quickly create a Cobra application.`,
 		formatPrintImages(result)
 
 		var fix string
-		cmd.Println("\nwant to download the nonexistent images?(y/n)")
+		fmt.Println("\ndo u want to download the nonexistent images?(y/N)")
 		fmt.Scan(&fix)
 
-		if fix == "n" {
-			os.Exit(0)
+		if fix == "y" {
+			for _, output := range result {
+				//存在就不下载了
+				if output.IsExist {
+					continue
+				}
+				downloadImage(output.Image)
+			}
 		}
 
-		for _, output := range result {
-			//存在就不下载了
-			if output.IsExist {
-				continue
-			}
-			downloadImage(output.Image)
-		}
 	},
 }
 
@@ -102,9 +96,9 @@ func getImages() ([]*output, error) {
 
 //格式化输出
 func formatPrintImages(images []*output) {
-	fmt.Println("image\t", "exist")
+	fmt.Printf("|%20s|%20s|\n", "image", "exist")
 	for _, output := range images {
-		fmt.Println(output.Image+"\t", output.IsExist)
+		fmt.Printf("|%20s|%20t|\n", output.Image, output.IsExist)
 	}
 }
 
@@ -115,11 +109,28 @@ func downloadImage(image string) error {
 		return err
 	}
 
-	fmt.Println("start downloading image", image)
+	var result *pullStat
+	// var result *map[string]interface{}
+	decoder := json.NewDecoder(reader)
 
-	io.Copy(os.Stdout, reader)
+	fmt.Printf("start downloading %s\n", image)
 
-	fmt.Println("finish downloading image", image)
+	// io.Copy(os.Stdout, reader)
+	for {
+		if err := decoder.Decode(&result); err != nil {
+			//读完就下一步
+			if err == io.EOF {
+				break
+			}
+			//有错就报错
+			fmt.Printf("\nfailed downloading %s:%s\n", image, err)
+			return err
+		}
+		fmt.Printf("\r-%150s", "")
+		fmt.Printf("\r%s:%s", result.Status, result.Progress)
+	}
+
+	fmt.Printf("\nsuccess downloading %s\n", image)
 
 	return nil
 }
@@ -127,4 +138,10 @@ func downloadImage(image string) error {
 type output struct {
 	Image   string
 	IsExist bool
+}
+
+type pullStat struct {
+	Status   string
+	Id       string
+	Progress string
 }
