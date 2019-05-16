@@ -17,13 +17,13 @@ func GetResult(c *gin.Context) {
 		return
 	}
 
-	s, err := services.GetResultFromDocker(l)
+	result, err := services.GetResultFromDocker(l)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"result": s,
+		"result": result,
 	})
 }

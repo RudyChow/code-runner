@@ -15,8 +15,8 @@ func RunTikers() {
 		select {
 		case <-cleaner.C:
 			//gc
-			go models.DockerRunner.CleanExpiredContainers(conf.Cfg.Container.MaxExcuteTime)
-			go utils.CleanExpiredTempFiles(conf.Cfg.Container.TemFilePath, conf.Cfg.Container.MaxExcuteTime)
+			go models.DockerRunner.CleanExpiredContainers(conf.Cfg.Container.MaxExcuteTime * 20)
+			go utils.CleanExpiredTempFiles(conf.Cfg.Container.TemFilePath, conf.Cfg.Container.MaxExcuteTime*20)
 		}
 	}
 }

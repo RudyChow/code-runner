@@ -4,18 +4,20 @@ import (
 	"io"
 	"os"
 	"testing"
+
+	"github.com/RudyChow/code-runner/app/common"
 )
 
 //整个流程的基本测试
 func TestLanguagesFlow(t *testing.T) {
-	testLanguages := map[string]*ContainerOption{
-		"php": &ContainerOption{
+	testLanguages := map[string]*common.ContainerOption{
+		"php": &common.ContainerOption{
 			Image:          "php:7.3-alpine",
 			Cmd:            []string{"php", "main.php"},
 			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main.php",
 			TargetFilePath: "/tmp/main.php",
 		},
-		"golang": &ContainerOption{
+		"golang": &common.ContainerOption{
 			Image:          "golang:1.12-alpine",
 			Cmd:            []string{"go", "run", "main.go"},
 			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main.go",
@@ -84,7 +86,14 @@ func TestGetAllUnsupportedImages(t *testing.T) {
 	// t.Log(list)
 }
 
-func flow(containerOption *ContainerOption) (string, error) {
+func TestStatContainer(t *testing.T) {
+	_, err := DockerRunner.StatContainer("1e637b916f15")
+	if err != nil {
+		t.FailNow()
+	}
+}
+
+func flow(containerOption *common.ContainerOption) (string, error) {
 
 	id, err := DockerRunner.CreateContainer(containerOption)
 	if err != nil {

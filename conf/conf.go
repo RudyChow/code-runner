@@ -39,7 +39,7 @@ type containerLimit struct {
 
 func init() {
 	//读取配置文件
-	if _, err := toml.DecodeFile("/Users/rudy/go/src/github.com/RudyChow/code-runner/config.toml", &Cfg); err != nil {
+	if _, err := toml.DecodeFile("./config.toml", &Cfg); err != nil {
 		log.Panic(err)
 	}
 	//设置目录

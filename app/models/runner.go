@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -10,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/RudyChow/code-runner/app/channels"
+	"github.com/RudyChow/code-runner/app/common"
 	"github.com/RudyChow/code-runner/app/utils"
 	"github.com/RudyChow/code-runner/conf"
 
@@ -50,7 +51,7 @@ func newRunner() (*Runner, error) {
 }
 
 //创建容器
-func (this *Runner) CreateContainer(containerOption *ContainerOption) (string, error) {
+func (this *Runner) CreateContainer(containerOption *common.ContainerOption) (string, error) {
 	resp, err := this.dockerClient.ContainerCreate(this.ctx, &container.Config{
 		Image:      containerOption.Image,
 		Cmd:        containerOption.Cmd,
@@ -98,8 +99,6 @@ func (this *Runner) WaitContainer(containerId string) error {
 		}
 	case <-statusCh:
 	case <-time.After(time.Second * time.Duration(conf.Cfg.Container.MaxExcuteTime)):
-		channels.RemoveContainerChan <- containerId
-		// this.RemoveContainer(containerId)
 		return errors.New("task time out")
 	}
 	return nil
@@ -116,9 +115,7 @@ func (this *Runner) LogContainer(containerId string) (result string, err error) 
 		return "", err
 	}
 
-	result = string(data)
-
-	log.Println("container:", containerId, ",result:", result)
+	result = string(data[0:100])
 
 	return
 }
@@ -139,6 +136,13 @@ func (this *Runner) GetContainers() ([]types.Container, error) {
 		Limit: -1,
 	})
 	return list, err
+}
+
+//获取容器资源统计
+func (this *Runner) StatContainer(id string) (io.ReadCloser, error) {
+	result, err := this.dockerClient.ContainerStats(this.ctx, id, true)
+
+	return result.Body, err
 }
 
 //获取镜像列表
@@ -200,26 +204,58 @@ func (this *Runner) CleanExpiredContainers(gap int64) error {
 }
 
 //执行
-func (this *Runner) Run(containerOption *ContainerOption) (string, string, error) {
+func (this *Runner) Run(containerOption *common.ContainerOption) (*common.ContainerResult, error) {
+	returnData := &common.ContainerResult{}
+
+	//新建容器
 	id, err := DockerRunner.CreateContainer(containerOption)
 	if err != nil {
-		return "", "", err
+		return returnData, err
 	}
+	returnData.ID = id
+	//获取状态
+	statReader, err := DockerRunner.StatContainer(id)
+	if err != nil {
+		return returnData, err
+	}
+	//收集状态结果
+	var (
+		statResult []*types.StatsJSON
+		startTime  = time.Now()
+	)
+	go func(reader io.ReadCloser) {
 
+		decoder := json.NewDecoder(reader)
+		for {
+			var streamData *types.StatsJSON
+			if err = decoder.Decode(&streamData); err != nil {
+				reader.Close()
+				return
+			}
+			statResult = append(statResult, streamData)
+
+		}
+
+	}(statReader)
+	//运行容器
 	err = DockerRunner.StartContainer(id)
 	if err != nil {
-		return id, "", err
+		return returnData, err
 	}
 
-	err = DockerRunner.WaitContainer(id)
+	//等待容器状态停止运行
+	DockerRunner.WaitContainer(id)
+	endTime := time.Now()
+
+	//获取容器日志
+	returnData.Result, err = DockerRunner.LogContainer(id)
 	if err != nil {
-		return id, "", err
+		return returnData, err
+	}
+	returnData.Stats, returnData.ExecutionTime = utils.ParseStat(statResult)
+	if returnData.ExecutionTime == 0 {
+		returnData.ExecutionTime = endTime.Sub(startTime).Nanoseconds() / 1e6
 	}
 
-	s, err := DockerRunner.LogContainer(id)
-	if err != nil {
-		return id, "", err
-	}
-
-	return id, s, err
+	return returnData, err
 }

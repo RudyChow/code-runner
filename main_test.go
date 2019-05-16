@@ -40,9 +40,9 @@ func TestLanguage(t *testing.T) {
 
 func TestTask(t *testing.T) {
 	l := &models.Language{
-		Name:    "php",
-		Version: "7.3",
-		Code:    "<?php\necho 'ok';",
+		Name:    "golang",
+		Version: "1.12",
+		Code:    "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfor{fmt.Print(\"golang\")}\n}",
 	}
 
 	err := l.OutputFile()
@@ -53,10 +53,10 @@ func TestTask(t *testing.T) {
 	option := l.GetContainerOption()
 	t.Log(option)
 
-	id, res, err := models.DockerRunner.Run(option)
+	containerResult, err := models.DockerRunner.Run(option)
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(id)
-	t.Log(res)
+	t.Log(containerResult.ID)
+	t.Log(containerResult.Result)
 }

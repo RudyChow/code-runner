@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/RudyChow/code-runner/app/channels"
+	"github.com/RudyChow/code-runner/app/common"
 	"github.com/RudyChow/code-runner/app/models"
 )
 
@@ -13,7 +13,7 @@ func RunChan() {
 	for {
 		select {
 		//删除容器
-		case id := <-channels.RemoveContainerChan:
+		case id := <-common.RemoveContainerChan:
 			err := models.DockerRunner.RemoveContainer(id)
 			if err != nil {
 				log.Println("failed deleting container", id, err)
@@ -21,7 +21,7 @@ func RunChan() {
 				log.Println("success deleting container", id)
 			}
 		//删除文件
-		case fileName := <-channels.RemoveFileChan:
+		case fileName := <-common.RemoveFileChan:
 			err := os.Remove(fileName)
 			if err != nil {
 				log.Println("failed deleting file", fileName, err)

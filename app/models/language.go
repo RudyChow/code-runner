@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/RudyChow/code-runner/app/common"
 	"github.com/RudyChow/code-runner/app/utils"
 	"github.com/RudyChow/code-runner/conf"
 )
@@ -37,8 +38,8 @@ func (this *Language) GetExtension() string {
 }
 
 //获取容器参数
-func (this *Language) GetContainerOption() *ContainerOption {
-	option := &ContainerOption{}
+func (this *Language) GetContainerOption() *common.ContainerOption {
+	option := &common.ContainerOption{}
 
 	option.Image = this.GetImage()
 	option.Cmd = this.GetCmd()
