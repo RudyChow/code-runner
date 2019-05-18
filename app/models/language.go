@@ -81,3 +81,19 @@ func GetAllSupportedImages() map[string][]string {
 
 	return result
 }
+
+//获取配置中的所有版本
+func GetAllSupportedVersions() map[string][]string {
+
+	result := make(map[string][]string)
+
+	for language, info := range conf.Cfg.Languages {
+		var versions []string
+		for version, _ := range info.Images {
+			versions = append(versions, version)
+		}
+		result[language] = versions
+	}
+
+	return result
+}

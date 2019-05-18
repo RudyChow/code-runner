@@ -10,10 +10,10 @@ type ContainerOption struct {
 
 //容器结果
 type ContainerResult struct {
-	ID            string `json:"container_id"`
-	Result        string `json:"code_result"`
-	ExecutionTime int64  `json:"execution_time"`
-	Stats         []*Stats
+	ID            string   `json:"container_id"`
+	Result        string   `json:"code_result"`
+	ExecutionTime int64    `json:"execution_time"`
+	Stats         []*Stats `json:"stats"`
 }
 
 type Stats struct {

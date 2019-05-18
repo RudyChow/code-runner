@@ -2,27 +2,35 @@ package conf
 
 import (
 	"log"
+	"os"
 	"path"
 
 	"github.com/BurntSushi/toml"
 	"github.com/RudyChow/code-runner/app/utils"
 )
 
-var Cfg *Config
+var (
+	configPath = "./config.toml"
+	Cfg        *Config
+)
 
 type Config struct {
 	Languages map[string]*info
 	Container *container
+	Http      *http
 }
 
+//语言配置
 type info struct {
 	Extension string
 	Cmd       []string
 	Images    map[string]string
 }
 
+//容器配置
 type container struct {
 	MaxExcuteTime       int64
+	MaxLogLength        int
 	TemFilePath         string
 	ContainerNamePrefix string
 	Limit               *containerLimit
@@ -37,9 +45,16 @@ type containerLimit struct {
 	CPUQuota  int64
 }
 
+//http配置
+type http struct {
+	Port int
+	Mode string
+}
+
 func init() {
+	initPath()
 	//读取配置文件
-	if _, err := toml.DecodeFile("./config.toml", &Cfg); err != nil {
+	if _, err := toml.DecodeFile(configPath, &Cfg); err != nil {
 		log.Panic(err)
 	}
 	//设置目录
@@ -50,4 +65,16 @@ func init() {
 		}
 		Cfg.Container.TemFilePath = path.Join(currPath, "tmp")
 	}
+}
+
+func initPath() {
+	envPath := os.Getenv("CODE_RUNNER_CONFIG_PATH")
+	SetConfigPath(envPath)
+}
+
+func SetConfigPath(path string) {
+	if path == "" {
+		return
+	}
+	configPath = path
 }

@@ -1,8 +1,8 @@
 [languages]
 
     [languages.php]
-    extension=".php"
-    cmd=["php","main.php"]
+    Extension=".php"
+    Cmd=["php","main.php"]
     [languages.php.images]
     "7.3"="php:7.3-alpine"
     "7.2"="php:7.2-alpine"
@@ -12,8 +12,8 @@
     "default"="latest"
 
     [languages.golang]
-    extension=".go"
-    cmd=["go","run","main.go"]
+    Extension=".go"
+    Cmd=["go","run","main.go"]
     [languages.golang.images]
     "1.12"="golang:1.12-alpine"
     "1.11"="golang:1.11-alpine"
@@ -23,6 +23,8 @@
 [container]
 #容器最大执行时间 单位s
 MaxExcuteTime=20
+#获取容器结果的最大字符串长度
+MaxLogLength=500
 #abs path
 TemFilePath="/tmp/code-runner"
 #容器前缀
@@ -42,3 +44,8 @@ ContainerNamePrefix="code-runner"
     #cpu 单位ms
     CPUQuota=200
 
+[http]
+#端口
+Port=8080
+#模式 debug release test
+Mode=""

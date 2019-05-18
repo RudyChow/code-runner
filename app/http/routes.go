@@ -14,5 +14,6 @@ func registerApiRoutes(r *gin.Engine) {
 	v1 := api.Group("/v1")
 	{
 		v1.POST("/code", controllers.GetResult)
+		v1.GET("/versions", controllers.GetVersions)
 	}
 }

@@ -114,8 +114,14 @@ func (this *Runner) LogContainer(containerId string) (result string, err error) 
 	if err != nil {
 		return "", err
 	}
-
-	result = string(data[0:100])
+	if conf.Cfg.Container.MaxLogLength > 0 {
+		result = string(data[:conf.Cfg.Container.MaxLogLength])
+		if len(data) > conf.Cfg.Container.MaxLogLength {
+			result += "(TLDR...)"
+		}
+	} else {
+		result = string(data)
+	}
 
 	return
 }
