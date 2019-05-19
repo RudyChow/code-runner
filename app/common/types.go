@@ -21,3 +21,9 @@ type Stats struct {
 	MemoryPercent float64 `json:"memory_percent"`
 	CPUPercent    float64 `json:"cpu_percent"`
 }
+
+//容器输出
+type ContainerLogs struct {
+	Out string
+	Err string
+}

@@ -8,8 +8,8 @@ import (
 )
 
 func StartHttpServer() {
+	gin.SetMode(conf.Cfg.Http.Mode)
 	r := gin.Default()
 	registerRouters(r)
-	gin.SetMode(conf.Cfg.Http.Mode)
 	r.Run("0.0.0.0:" + strconv.Itoa(conf.Cfg.Http.Port)) // listen and serve on
 }

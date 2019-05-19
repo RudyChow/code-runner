@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -93,6 +94,14 @@ func TestStatContainer(t *testing.T) {
 	}
 }
 
+func TestLogContainer(t *testing.T) {
+	log, err := DockerRunner.LogContainer("8814c6fed507")
+	if err != nil {
+		t.FailNow()
+	}
+	fmt.Printf("%+v", log)
+}
+
 func flow(containerOption *common.ContainerOption) (string, error) {
 
 	id, err := DockerRunner.CreateContainer(containerOption)
@@ -110,7 +119,7 @@ func flow(containerOption *common.ContainerOption) (string, error) {
 		return "", err
 	}
 
-	s, err := DockerRunner.LogContainer(id)
+	logs, err := DockerRunner.LogContainer(id)
 	if err != nil {
 		return "", err
 	}
@@ -120,5 +129,5 @@ func flow(containerOption *common.ContainerOption) (string, error) {
 		return "", err
 	}
 
-	return s, nil
+	return logs.Out, nil
 }

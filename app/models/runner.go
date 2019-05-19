@@ -1,11 +1,11 @@
 package models
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"log"
 	"strings"
 	"sync"
@@ -19,6 +19,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 )
 
 var DockerRunner *Runner
@@ -105,25 +106,40 @@ func (this *Runner) WaitContainer(containerId string) error {
 }
 
 //获取容器记录
-func (this *Runner) LogContainer(containerId string) (result string, err error) {
-	out, err := this.dockerClient.ContainerLogs(this.ctx, containerId, types.ContainerLogsOptions{ShowStdout: true})
+//此处需要注意log容器时会返回stream 里面的每一行开头都是一个[]byte 需要自己解析 或者使用docker里的方法获取stdout和stderr
+//具体参考https://docs.docker.com/engine/api/v1.39/#operation/ContainerAttach
+//https://docs.docker.com/engine/api/v1.39/#operation/ContainerLogs 或者 sdk的ContainerAttach 方法
+func (this *Runner) LogContainer(containerId string) (*common.ContainerLogs, error) {
+	out, err := this.dockerClient.ContainerLogs(this.ctx, containerId, types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	data, err := ioutil.ReadAll(out)
-	if err != nil {
-		return "", err
+	// data, _ := ioutil.ReadAll(out)
+	var (
+		outBuff bytes.Buffer
+		errBuff bytes.Buffer
+	)
+	totalLen, err := stdcopy.StdCopy(&outBuff, &errBuff, out)
+	result := &common.ContainerLogs{
+		Err: errBuff.String(),
 	}
-	if conf.Cfg.Container.MaxLogLength > 0 {
-		result = string(data[:conf.Cfg.Container.MaxLogLength])
-		if len(data) > conf.Cfg.Container.MaxLogLength {
-			result += "(TLDR...)"
-		}
+	//如果长度太长
+	if totalLen > conf.Cfg.Container.MaxLogLength {
+		result.Out = string(outBuff.Bytes()[:conf.Cfg.Container.MaxLogLength]) + "(TLDR...)"
 	} else {
-		result = string(data)
+		result.Out = outBuff.String()
 	}
+	return result, err
+}
 
-	return
+//删除容器
+func (this *Runner) StopContainer(containerId string) error {
+	timeout := time.Duration(1)
+	err := this.dockerClient.ContainerStop(this.ctx, containerId, &timeout)
+	return err
 }
 
 //删除容器
@@ -249,15 +265,21 @@ func (this *Runner) Run(containerOption *common.ContainerOption) (*common.Contai
 		return returnData, err
 	}
 
-	//等待容器状态停止运行
+	//等待容器状态停止运行 (此处阻塞)
 	DockerRunner.WaitContainer(id)
 	endTime := time.Now()
+	//暂停容器，否则遇到死循环，获取logs时还是会一直输出
+	DockerRunner.StopContainer(id)
 
 	//获取容器日志
-	returnData.Result, err = DockerRunner.LogContainer(id)
-	if err != nil {
-		return returnData, err
+	logs, err := DockerRunner.LogContainer(id)
+	if logs.Err != "" {
+		returnData.Result = logs.Err
+	} else {
+		returnData.Result = logs.Out
 	}
+
+	//如果没有从stats获取到时间，则用代码中计算的
 	returnData.Stats, returnData.ExecutionTime = utils.ParseStat(statResult)
 	if returnData.ExecutionTime == 0 {
 		returnData.ExecutionTime = endTime.Sub(startTime).Nanoseconds() / 1e6

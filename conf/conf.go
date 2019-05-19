@@ -30,7 +30,7 @@ type info struct {
 //容器配置
 type container struct {
 	MaxExcuteTime       int64
-	MaxLogLength        int
+	MaxLogLength        int64
 	TemFilePath         string
 	ContainerNamePrefix string
 	Limit               *containerLimit
