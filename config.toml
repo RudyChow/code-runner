@@ -9,7 +9,7 @@
     "7.1"="php:7.1-alpine"
     "7.0"="php:7.0-alpine"
     "5.6"="php:5.6-alpine"
-    "default"="latest"
+    # "default"="latest"
 
     [languages.golang]
     Extension=".go"
@@ -17,7 +17,15 @@
     [languages.golang.images]
     "1.12"="golang:1.12-alpine"
     "1.11"="golang:1.11-alpine"
-    "default"="latest"
+    # "default"="latest"
+
+    [languages.python]
+    Extension=".py"
+    Cmd=["py","main.py"]
+    [languages.python.images]
+    "3.6"="python:3.6-alpine"
+    "2.7"="python:2.7-alpine"
+    # "default"="latest"
 
 
 [container]

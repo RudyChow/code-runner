@@ -126,7 +126,7 @@ func downloadImage(image string) error {
 			fmt.Printf("\nfailed downloading %s:%s\n", image, err)
 			return err
 		}
-		fmt.Printf("\r-%150s", "")
+		// fmt.Printf("\r-%150s", "")
 		fmt.Printf("\r%s:%s", result.Status, result.Progress)
 	}
 

@@ -24,6 +24,18 @@ func TestLanguagesFlow(t *testing.T) {
 			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main.go",
 			TargetFilePath: "/tmp/main.go",
 		},
+		"python2": &common.ContainerOption{
+			Image:          "python:2.7-alpine",
+			Cmd:            []string{"python", "main.py"},
+			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main2.py",
+			TargetFilePath: "/tmp/main.py",
+		},
+		"python3": &common.ContainerOption{
+			Image:          "python:3.6-alpine",
+			Cmd:            []string{"python", "main.py"},
+			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main3.py",
+			TargetFilePath: "/tmp/main.py",
+		},
 	}
 
 	for _, containerOption := range testLanguages {
