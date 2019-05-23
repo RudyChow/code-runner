@@ -1,6 +1,8 @@
 package models
 
 import (
+	"sort"
+
 	"github.com/RudyChow/code-runner/app/common"
 	"github.com/RudyChow/code-runner/app/utils"
 	"github.com/RudyChow/code-runner/conf"
@@ -72,10 +74,11 @@ func GetAllSupportedImages() map[string][]string {
 	result := make(map[string][]string)
 
 	for language, info := range conf.Cfg.Languages {
-		var images []string
+		var images sort.StringSlice
 		for _, image := range info.Images {
 			images = append(images, image)
 		}
+		sort.Sort(sort.Reverse(images))
 		result[language] = images
 	}
 
@@ -88,10 +91,11 @@ func GetAllSupportedVersions() map[string][]string {
 	result := make(map[string][]string)
 
 	for language, info := range conf.Cfg.Languages {
-		var versions []string
+		var versions sort.StringSlice
 		for version, _ := range info.Images {
 			versions = append(versions, version)
 		}
+		sort.Sort(sort.Reverse(versions))
 		result[language] = versions
 	}
 

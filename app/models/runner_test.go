@@ -36,6 +36,12 @@ func TestLanguagesFlow(t *testing.T) {
 			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main3.py",
 			TargetFilePath: "/tmp/main.py",
 		},
+		"c": &common.ContainerOption{
+			Image:          "gcc:9",
+			Cmd:            []string{"sh", "-c", "gcc -o main.out main.c && ./main.out"},
+			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main.c",
+			TargetFilePath: "/tmp/main.c",
+		},
 	}
 
 	for _, containerOption := range testLanguages {
