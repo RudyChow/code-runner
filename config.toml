@@ -30,6 +30,24 @@
     [languages.c.images]
     "gcc:9"="gcc:9"
 
+    [languages."c++"]
+    Extension=".cpp"
+    Cmd=["sh","-c","gcc main.cpp -lstdc++ -o main.out && ./main.out"]
+    [languages."c++".images]
+    "gcc:9"="gcc:9"
+
+    [languages.ruby]
+    Extension=".rb"
+    Cmd=["rudy","main.rb"]
+    [languages.ruby.images]
+    "2.6"="ruby:2.6-alpine"
+
+    [languages.java]
+    Extension=".java"
+    Cmd=["sh","-c","javac main.java && java Main"]
+    [languages.java.images]
+    "13"="openjdk:13-alpine"
+
 
 [container]
 #容器最大执行时间 单位s
