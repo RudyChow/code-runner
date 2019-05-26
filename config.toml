@@ -19,7 +19,7 @@
 
     [languages.python]
     Extension=".py"
-    Cmd=["py","main.py"]
+    Cmd=["python","main.py"]
     [languages.python.images]
     "3.6"="python:3.6-alpine"
     "2.7"="python:2.7-alpine"
@@ -38,7 +38,7 @@
 
     [languages.ruby]
     Extension=".rb"
-    Cmd=["rudy","main.rb"]
+    Cmd=["ruby","main.rb"]
     [languages.ruby.images]
     "2.6"="ruby:2.6-alpine"
 
