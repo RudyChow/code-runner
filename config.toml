@@ -58,6 +58,8 @@ MaxLogLength=500
 TemFilePath="/tmp/code-runner"
 #容器前缀
 ContainerNamePrefix="code-runner"
+#network is none?
+NetworkNone=false
     #容器限制
     [container.limit]
     #内存 单位m

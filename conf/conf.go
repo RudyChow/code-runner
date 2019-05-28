@@ -18,7 +18,7 @@ type Config struct {
 	Languages map[string]*info
 	Container *container
 	Http      *http
-	Docker	  *docker
+	Docker    *docker
 }
 
 //语言配置
@@ -34,6 +34,7 @@ type container struct {
 	MaxLogLength        int
 	TemFilePath         string
 	ContainerNamePrefix string
+	NetworkNone         bool
 	Limit               *containerLimit
 }
 
@@ -53,7 +54,7 @@ type http struct {
 }
 
 //docekr配置
-type docker struct{
+type docker struct {
 	ApiVersion string
 }
 

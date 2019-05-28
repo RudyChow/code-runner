@@ -41,7 +41,7 @@ func init() {
 //创建一个docker执行者
 func newRunner() (*Runner, error) {
 	runner := &Runner{}
-	
+
 	cli, err := client.NewClientWithOpts(client.WithVersion(conf.Cfg.Docker.ApiVersion))
 	if err != nil {
 		return nil, err
@@ -53,11 +53,8 @@ func newRunner() (*Runner, error) {
 
 //创建容器
 func (this *Runner) CreateContainer(containerOption *common.ContainerOption) (string, error) {
-	resp, err := this.dockerClient.ContainerCreate(this.ctx, &container.Config{
-		Image:      containerOption.Image,
-		Cmd:        containerOption.Cmd,
-		WorkingDir: "/tmp",
-	}, &container.HostConfig{
+	//容器限制
+	containerHostConfig := &container.HostConfig{
 		Mounts: []mount.Mount{ //docker 容器目录挂在到宿主机目录
 			mount.Mount{
 				Type:   mount.TypeBind,
@@ -73,7 +70,17 @@ func (this *Runner) CreateContainer(containerOption *common.ContainerOption) (st
 			CPUPeriod: conf.Cfg.Container.Limit.CPUPeriod * 1000,
 			CPUQuota:  conf.Cfg.Container.Limit.CPUQuota * 1000,
 		},
-	}, nil, conf.Cfg.Container.ContainerNamePrefix+"-"+utils.GenerateRandomFileName("", ""))
+	}
+	//如果不允许容器联网
+	if conf.Cfg.Container.NetworkNone {
+		containerHostConfig.NetworkMode = "none"
+	}
+
+	resp, err := this.dockerClient.ContainerCreate(this.ctx, &container.Config{
+		Image:      containerOption.Image,
+		Cmd:        containerOption.Cmd,
+		WorkingDir: "/tmp",
+	}, containerHostConfig, nil, conf.Cfg.Container.ContainerNamePrefix+"-"+utils.GenerateRandomFileName("", ""))
 	if err != nil {
 		return "", err
 	}
