@@ -78,3 +78,8 @@ ContainerNamePrefix="code-runner"
 Port=8080
 #模式 debug release test
 Mode=""
+
+
+[docker]
+#docker api version
+ApiVersion=""

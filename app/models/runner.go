@@ -41,8 +41,8 @@ func init() {
 //创建一个docker执行者
 func newRunner() (*Runner, error) {
 	runner := &Runner{}
-
-	cli, err := client.NewClientWithOpts()
+	
+	cli, err := client.NewClientWithOpts(client.WithVersion(conf.Cfg.Docker.ApiVersion))
 	if err != nil {
 		return nil, err
 	}
@@ -122,12 +122,13 @@ func (this *Runner) LogContainer(containerId string) (*common.ContainerLogs, err
 		outBuff bytes.Buffer
 		errBuff bytes.Buffer
 	)
-	totalLen, err := stdcopy.StdCopy(&outBuff, &errBuff, out)
+	_, err = stdcopy.StdCopy(&outBuff, &errBuff, out)
+	//错误输出直接赋值
 	result := &common.ContainerLogs{
 		Err: errBuff.String(),
 	}
 	//如果长度太长
-	if totalLen > conf.Cfg.Container.MaxLogLength {
+	if outBuff.Len() > conf.Cfg.Container.MaxLogLength {
 		result.Out = string(outBuff.Bytes()[:conf.Cfg.Container.MaxLogLength]) + "(TLDR...)"
 	} else {
 		result.Out = outBuff.String()

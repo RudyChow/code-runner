@@ -18,6 +18,7 @@ type Config struct {
 	Languages map[string]*info
 	Container *container
 	Http      *http
+	Docker	  *docker
 }
 
 //语言配置
@@ -30,7 +31,7 @@ type info struct {
 //容器配置
 type container struct {
 	MaxExcuteTime       int64
-	MaxLogLength        int64
+	MaxLogLength        int
 	TemFilePath         string
 	ContainerNamePrefix string
 	Limit               *containerLimit
@@ -49,6 +50,11 @@ type containerLimit struct {
 type http struct {
 	Port int
 	Mode string
+}
+
+//docekr配置
+type docker struct{
+	ApiVersion string
 }
 
 func init() {
