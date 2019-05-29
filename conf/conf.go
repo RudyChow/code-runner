@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/BurntSushi/toml"
+	"github.com/RudyChow/code-runner/app/common"
 	"github.com/RudyChow/code-runner/app/utils"
 )
 
@@ -30,6 +31,7 @@ type info struct {
 
 //容器配置
 type container struct {
+	MaxExcuteTask       uint
 	MaxExcuteTime       int64
 	MaxLogLength        int
 	TemFilePath         string
@@ -71,6 +73,10 @@ func init() {
 			log.Panic(err)
 		}
 		Cfg.Container.TemFilePath = path.Join(currPath, "tmp")
+	}
+	//设置最大执行任务数量
+	if Cfg.Container.MaxExcuteTask > 0 {
+		common.TaskChan = make(chan struct{}, Cfg.Container.MaxExcuteTask)
 	}
 }
 

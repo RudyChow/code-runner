@@ -235,6 +235,14 @@ func (this *Runner) CleanExpiredContainers(gap int64) error {
 
 //执行
 func (this *Runner) Run(containerOption *common.ContainerOption) (*common.ContainerResult, error) {
+	//对执行代码进行限制，防止并发处理占用系统资源
+	if conf.Cfg.Container.MaxExcuteTask > 0 {
+		common.TaskChan <- struct{}{}
+		defer func() {
+			<-common.TaskChan
+		}()
+	}
+
 	returnData := &common.ContainerResult{}
 
 	//新建容器

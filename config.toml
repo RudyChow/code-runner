@@ -50,6 +50,8 @@
 
 
 [container]
+#最多同时执行多少个任务,0为不限制
+MaxExcuteTask=2
 #容器最大执行时间 单位s
 MaxExcuteTime=20
 #获取容器结果的最大字符串长度
@@ -77,7 +79,7 @@ NetworkNone=false
 
 [http]
 #端口
-Port=8080
+Port=28080
 #模式 debug release test
 Mode=""
 
