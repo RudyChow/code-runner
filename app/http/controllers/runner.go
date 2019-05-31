@@ -11,7 +11,7 @@ import (
 
 //获取结果
 func GetResult(c *gin.Context) {
-	var l *models.Language
+	var l models.Language
 
 	if err := c.ShouldBind(&l); err != nil {
 		c.JSON(http.StatusBadRequest, common.ApiResponse{
@@ -20,7 +20,7 @@ func GetResult(c *gin.Context) {
 		return
 	}
 
-	result, err := services.GetResultFromDocker(l)
+	result, err := services.GetResultFromDocker(&l)
 	if err != nil {
 		c.JSON(http.StatusForbidden, common.ApiResponse{
 			Error: err.Error(),

@@ -12,9 +12,9 @@ func TestMain(t *testing.T) {
 
 func TestLanguage(t *testing.T) {
 	l := &models.Language{
-		Name:    "php",
-		Version: "7.3",
-		Code:    "<?php\necho 'ok';",
+		Language: "php",
+		Version:  "7.3",
+		Code:     "<?php\necho 'ok';",
 	}
 
 	res := l.CheckVersion()
@@ -40,9 +40,9 @@ func TestLanguage(t *testing.T) {
 
 func TestTask(t *testing.T) {
 	l := &models.Language{
-		Name:    "golang",
-		Version: "1.12",
-		Code:    "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfor{fmt.Print(\"golang\")}\n}",
+		Language: "golang",
+		Version:  "1.12",
+		Code:     "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfor{fmt.Print(\"golang\")}\n}",
 	}
 
 	err := l.OutputFile()

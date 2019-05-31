@@ -9,37 +9,37 @@ import (
 )
 
 type Language struct {
-	Name           string `form:"name" json:"name" xml:"name"  binding:"required"`
+	Language       string `form:"language" json:"language" xml:"language"  binding:"required"`
 	Version        string `form:"version" json:"version" xml:"version"  binding:"required"`
 	Code           string `form:"code" json:"code" xml:"code"  binding:"required"`
 	SourceFilePath string
 }
 
-//检查版本是否存在
+// CheckVersion : 检查版本是否存在
 func (this *Language) CheckVersion() bool {
-	_, ok := conf.Cfg.Languages[this.Name].Images[this.Version]
+	_, ok := conf.Cfg.Languages[this.Language].Images[this.Version]
 	return ok
 }
 
-//获取镜像名称
+// GetImage : 获取镜像名称
 func (this *Language) GetImage() string {
-	image, _ := conf.Cfg.Languages[this.Name].Images[this.Version]
+	image, _ := conf.Cfg.Languages[this.Language].Images[this.Version]
 	return image
 }
 
-//获取cmd
+// GetCmd : 获取cmd
 func (this *Language) GetCmd() []string {
-	cmd := conf.Cfg.Languages[this.Name].Cmd
+	cmd := conf.Cfg.Languages[this.Language].Cmd
 	return cmd
 }
 
-//获取后缀
+// GetExtension : 获取后缀
 func (this *Language) GetExtension() string {
-	ext := conf.Cfg.Languages[this.Name].Extension
+	ext := conf.Cfg.Languages[this.Language].Extension
 	return ext
 }
 
-//获取容器参数
+// GetContainerOption : 获取容器参数
 func (this *Language) GetContainerOption() *common.ContainerOption {
 	option := &common.ContainerOption{}
 
@@ -68,7 +68,7 @@ func (this *Language) generateTargetFilePath() string {
 	return "/tmp/main" + this.GetExtension()
 }
 
-//获取配置中的所有镜像
+// GetAllSupportedImages : 获取配置中的所有镜像
 func GetAllSupportedImages() map[string][]string {
 
 	result := make(map[string][]string)
@@ -85,7 +85,7 @@ func GetAllSupportedImages() map[string][]string {
 	return result
 }
 
-//获取配置中的所有版本
+// GetAllSupportedVersions : 获取配置中的所有版本
 func GetAllSupportedVersions() map[string][]string {
 
 	result := make(map[string][]string)
