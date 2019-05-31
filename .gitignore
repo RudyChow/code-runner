@@ -4,3 +4,4 @@ vendor
 **/coverage.*
 tmp
 code-runner
+config.toml
