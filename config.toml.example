@@ -48,6 +48,11 @@
     [languages.java.images]
     "13"="openjdk:13-alpine"
 
+    [languages.javascript]
+    Extension=".js"
+    Cmd=["node","main.js"]
+    [languages.javascript.images]
+    "node:12"="node:12-alpine"
 
 [container]
 #最多同时执行多少个任务,0为不限制

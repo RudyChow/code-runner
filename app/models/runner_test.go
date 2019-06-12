@@ -60,6 +60,12 @@ func TestLanguagesFlow(t *testing.T) {
 			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main.java",
 			TargetFilePath: "/tmp/main.java",
 		},
+		"javascript": &common.ContainerOption{
+			Image:          "node:12-alpine",
+			Cmd:            []string{"node", "main.js"},
+			SourceFilePath: "/Users/rudy/go/src/github.com/RudyChow/code-runner/test/example/main.js",
+			TargetFilePath: "/tmp/main.js",
+		},
 	}
 
 	for _, containerOption := range testLanguages {
